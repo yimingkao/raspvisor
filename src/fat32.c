@@ -370,3 +370,53 @@ int fat32_file_size(struct fat32_file *fatfile) {
 int fat32_is_directory(struct fat32_file *fatfile) {
   return (fatfile->attr & ATTR_DIRECTORY) != 0;
 }
+
+
+int fat32_filename_dump(struct fat32_fs *param_fat32) {
+  struct fat32_file *fatfile = &param_fat32->root;
+  struct fat32_fs *fat32 = fatfile->fat32;
+
+  if (!(fatfile->attr & ATTR_DIRECTORY))
+    return -1;
+
+  uint8_t *prevbuf = NULL;
+  uint8_t *bbuf = NULL;
+  uint32_t current_cluster = fatfile->cluster;
+
+  for (int blkno = fat32_firstblk(fat32, current_cluster, 0);
+       is_active_cluster(current_cluster);) {
+    bbuf = alloc_and_readblock(blkno + fat32->volume_first);
+
+    for (uint32_t i = 0; i < BLOCKSIZE; i += sizeof(struct fat32_dent)) {
+      struct fat32_dent *dent = (struct fat32_dent *)(bbuf + i);
+
+      if (dent->DIR_Name[0] == 0x00)
+        break;
+      if (dent->DIR_Name[0] == 0xe5)
+        continue;
+      if (dent->DIR_Attr & (ATTR_VOLUME_ID | ATTR_LONG_NAME))
+        continue;
+
+      char *dent_name = NULL;
+
+      dent_name = get_lfn(dent, i, prevbuf ?
+          (struct fat32_dent *)(prevbuf + (BLOCKSIZE - sizeof(struct fat32_dent))) : NULL);
+      if (dent_name == NULL)
+        dent_name = get_sfn(dent);
+
+      printf("%s\n", dent_name);
+    }
+
+    if (prevbuf != NULL)
+      deallocate_page(prevbuf);
+    prevbuf = bbuf;
+    bbuf = NULL;
+    blkno = fat32_nextblk(fat32, blkno, &current_cluster);
+  }
+
+  if (prevbuf != NULL)
+    deallocate_page(prevbuf);
+  if (bbuf != NULL)
+    deallocate_page(bbuf);
+  return 0;
+}

@@ -34,11 +34,12 @@ kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
 
 .PHONY: install
 install: kernel8.img
-	rm -rf $(SD_BOOT_DIR)/*.img
-	cp src/config.txt $(SD_BOOT_DIR)
-	cp kernel8.img $(SD_BOOT_DIR)
-	-umount $(SD_BOOT_DIR)
-	-umount $(SD_ROOTFS_DIR)
+	#rm -rf $(SD_BOOT_DIR)/*.img
+	#cp src/config.txt $(SD_BOOT_DIR)
+	#cp kernel8.img $(SD_BOOT_DIR)
+	#-umount $(SD_BOOT_DIR)
+	#-umount $(SD_ROOTFS_DIR)
+	@echo "kernel8.img build successfully!"
 
 .PHONY: serial
 serial:

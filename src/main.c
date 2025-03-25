@@ -13,11 +13,22 @@
 #include "debug.h"
 #include "loader.h"
 
+void mini_uart_puts(char *str) {
+  if (!str) return;
+  while(*str) {
+    uart_send(*str++);
+  }
+}
+
 void hypervisor_main() {
   uart_init();
+#if 1
   init_printf(NULL, putc);
   printf("=== raspvisor ===\n");
-
+#else
+  mini_uart_puts("=== raspvisor ===\n\r");
+#endif
+#if 1
   init_task_console(current);
   init_initial_task();
   irq_vector_init();
@@ -88,4 +99,5 @@ void hypervisor_main() {
     schedule();
     enable_irq();
   }
+#endif
 }

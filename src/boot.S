@@ -15,7 +15,44 @@ _start:
 proc_hang:
   b proc_hang
 
+#if 0
 master:
+  ldr x2, = __EL2_stack_core0				// Address of EL2_stack_core0 stack pointer value
+  ldr x3, = __EL1_stack_core0				// Address of EL1_stack_core0 stack pointer value
+  ldr x4, = __EL0_stack_core0				// Address of EL0_stack_core0 stack pointer value
+	mov	sp, x2								/* EL2 stack set */
+	msr	sp_el1, x3							/* EL1 stack set */
+	msr	sp_el0, x4							/* EL0 stack set */
+//"================================================================"
+//  Initilize MPID/MPIDR registers for all Cores
+//"================================================================"
+	mrs	x0, midr_el1
+	mrs	x1, mpidr_el1
+	msr	vpidr_el2, x0
+	msr	vmpidr_el2, x1
+
+//"================================================================"
+//  Initialize Generic Timers for Core0
+//"================================================================"
+	mrs	x0, cnthctl_el2
+	orr	x0, x0, #0x3						/* Enable EL1 access to timers */
+	msr	cnthctl_el2, x0
+	msr	cntvoff_el2, xzr
+
+//"================================================================"
+//  Initialize HCR_EL2 so EL1 is 64 bits for all Cores
+//"================================================================"
+	mov	x0, #(1 << 31)						// 64bit EL1
+	msr	hcr_el2, x0
+
+  ldr x2, =hypervisor_main
+  isb
+  br  x2
+
+
+#else
+master:
+#if 0
   // Initial EL is 3
   // Change EL from 3 to 2
   ldr x0, =SCTLR_VALUE_MMU_DISABLED
@@ -36,6 +73,7 @@ master:
   eret
 
 el2_entry:
+#endif
   adr x0, bss_begin
   adr x1, bss_end
   sub x1, x1, x0
@@ -70,6 +108,7 @@ el2_entry:
   isb
 
   br  x2
+  b proc_hang
 
   .macro  create_pgd_entry, tbl, virt, tmp1, tmp2
   create_table_entry \tbl, \virt, PGD_SHIFT, \tmp1, \tmp2
@@ -125,4 +164,4 @@ __create_page_tables:
 
   mov x30, x29            // restore return address
   ret
-
+#endif
