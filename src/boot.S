@@ -23,6 +23,7 @@ master:
 	mov	sp, x2								/* EL2 stack set */
 	msr	sp_el1, x3							/* EL1 stack set */
 	msr	sp_el0, x4							/* EL0 stack set */
+
 //"================================================================"
 //  Initilize MPID/MPIDR registers for all Cores
 //"================================================================"
@@ -52,7 +53,6 @@ master:
 
 #else
 master:
-#if 0
   // Initial EL is 3
   // Change EL from 3 to 2
   ldr x0, =SCTLR_VALUE_MMU_DISABLED
@@ -61,6 +61,7 @@ master:
   ldr x0, =HCR_VALUE
   msr hcr_el2, x0
 
+#if 0
   ldr x0, =SCR_VALUE
   msr scr_el3, x0
 

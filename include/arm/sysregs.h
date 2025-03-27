@@ -3,7 +3,7 @@
 // ***************************************
 // SCTLR_EL2, System Control Register (EL2)
 // ***************************************
-
+#define SCTLR_RESERVED         ((3 << 28) | (3 << 22) | (1 << 18) | (1 << 16) | (1 << 11) | (3 << 4))
 #define SCTLR_EE               (0 << 25)
 #define SCTLR_I_CACHE_DISABLED (0 << 12)
 #define SCTLR_D_CACHE_DISABLED (0 << 2)
@@ -11,7 +11,7 @@
 #define SCTLR_MMU_ENABLED      (1 << 0)
 
 #define SCTLR_VALUE_MMU_DISABLED                                               \
-  (SCTLR_EE | SCTLR_I_CACHE_DISABLED | SCTLR_D_CACHE_DISABLED |                \
+  (SCTLR_RESERVED | SCTLR_EE | SCTLR_I_CACHE_DISABLED | SCTLR_D_CACHE_DISABLED | \
    SCTLR_MMU_DISABLED)
 
 // ***************************************
