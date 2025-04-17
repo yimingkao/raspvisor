@@ -48,7 +48,7 @@ void handle_uart_irq(void) {
 
   char received = get32(AUX_MU_IO_REG) & 0xff;
   struct task_struct *tsk;
-  //printf("received: %c\n", received);
+  put32(AUX_MU_IIR_REG, 0x2); // clear interrupt
 
   if (is_escaped) {
     is_escaped = 0;
@@ -73,11 +73,10 @@ enqueue_char:
     }
   }
 
-  put32(AUX_MU_IIR_REG, 0x2); // clear interrupt
 }
 
 void uart_init(void) {
-#if 0
+#if 1
   unsigned int selector;
 
   selector = get32(GPFSEL1);
@@ -96,10 +95,11 @@ void uart_init(void) {
   put32(AUX_ENABLES, 1); // Enable mini uart (this also enables access to it registers)
   put32(AUX_MU_CNTL_REG, 0); // Disable auto flow control and disable receiver
                              // and transmitter (for now)
-  put32(AUX_MU_IER_REG, 1);    // Enable receive interrupt
   put32(AUX_MU_LCR_REG, 3);    // Enable 8 bit mode
   put32(AUX_MU_MCR_REG, 0);    // Set RTS line to be always high
   put32(AUX_MU_BAUD_REG, 270); // Set baud rate to 115200
+  put32(AUX_MU_IIR_REG, 0x6); // Clear RX/TX FIFO
+  put32(AUX_MU_IER_REG, 1);    // Enable receive interrupt
 
   put32(AUX_MU_CNTL_REG, 3); // Finally, enable transmitter and receiver
 #else

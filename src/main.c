@@ -84,6 +84,7 @@ void hypervisor_main() {
     return;
   }
 
+#if 0
   struct raw_binary_loader_args bl_args3 = {
     .load_addr = 0x0,
     .entry_point = 0x0,
@@ -116,6 +117,7 @@ void hypervisor_main() {
     printf("error while starting task");
     return;
   }
+#endif
 
   while (1) {
     disable_irq();
