@@ -36,8 +36,7 @@ _next:
 			case '\n':
 			case '\r':
 				cmd[cnt] = '\0';
-				/*console_uart_puts("\r\nNew command: ");
-				console_uart_puts(cmd);*/
+				console_uart_puts("\r\n");
 				cmd_dispatch(cmd);
 				goto _next;
 			default:
