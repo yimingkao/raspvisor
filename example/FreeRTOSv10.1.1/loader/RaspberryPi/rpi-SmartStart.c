@@ -783,6 +783,7 @@ static const char* ARM7_STR = "cortex-a7";
 static const char* ARM8_STR = "cortex-a53";
 static const char* ARMX_STR = "unknown ARM cpu";
 
+#if 0
 /*--------------------------------------------------------------------------}
 {					 INTERNAL DEVICE CONTEXT STRUCTURE						}
 {--------------------------------------------------------------------------*/
@@ -1223,6 +1224,7 @@ static void PutImage32(INTDC* dc, uint_fast32_t dx, uint_fast32_t dy, uint_fast3
 		ImageSrc.rawImage += p2wth;									// Adjust image pointer by power 2 width
 	}
 }
+#endif
 
 /***************************************************************************}
 {                       PUBLIC C INTERFACE ROUTINES                         }
@@ -1983,7 +1985,7 @@ bool ARM_setmaxspeed (int(*prn_handler) (const char *fmt, ...)) {
 	return false;													// Max speed set failed
 }
 
-
+#if 0
 /*==========================================================================}
 {				      SMARTSTART DISPLAY ROUTINES							}
 {==========================================================================*/
@@ -2513,7 +2515,7 @@ HGDIOBJ SelectObject (HDC hdc,										// Handle to the DC (0 means use standar
 	}
 	return retVal;
 }
-
+#endif
 
 
 
