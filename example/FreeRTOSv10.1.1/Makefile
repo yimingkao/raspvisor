@@ -8,10 +8,12 @@ ifeq ($(OS), Windows_NT)
 	#WINDOWS USE THESE DEFINITIONS
 	RM = -del /q
 	SLASH = \\
+	MKDIR := mkdir
 else
 	#LINUX USE THESE DEFINITIONS
-	RM = -rm -f
+	RM = -rm -rf
 	SLASH = /
+	MKDIR := /bin/mkdir -p
 endif 
 
 # You will need to change the first line (ARMGNU) of these to match your compiler directories
@@ -145,11 +147,11 @@ gcc : freertos.elf
 # Control silent mode  .... we want silent in clean
 .SILENT: clean
 clean :
-	$(RM) build$(SLASH)*.o
-	$(RM) build$(SLASH)*.d
+	$(RM) build
 	$(RM) *.elf
 	$(RM) *.list
 	$(RM) *.map
+	$(RM) *.img
 .PHONY: clean
 
 # How we compile assembler files
@@ -163,20 +165,24 @@ $(SOFILES): $(SFILES)
 $(SFILES): ;
 $(CFILES): ;
 
-Pi3-64: freertos.elf
+Pi3-64: create_folder freertos.elf
 .PHONY: Pi3-64
 
-Pi3: freertos.elf
+Pi3: create_folder freertos.elf
 .PHONY: Pi3
 
-Pi2: freertos.elf
+Pi2: create_folder freertos.elf
 .PHONY: Pi2
 
-Pi1: freertos.elf
+Pi1: create_folder freertos.elf
 .PHONY: Pi1
+
+create_folder:
+	$(MKDIR) build
+.PHONY: create_folder
 
 freertos.elf : $(SOFILES) $(COFILES)
 	$(ARMGNU)-gcc $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 	$(ARMGNU)-objdump -d freertos.elf > freertos.list
-	$(ARMGNU)-objcopy freertos.elf -O binary DiskImg$(SLASH)$(IMGFILE)
+	$(ARMGNU)-objcopy freertos.elf -O binary $(IMGFILE)
 	$(ARMGNU)-nm -n freertos.elf > freertos.map
