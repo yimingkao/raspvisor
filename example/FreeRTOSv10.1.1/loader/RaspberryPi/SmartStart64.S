@@ -101,42 +101,56 @@ multicore_start:
     ldr x3, = __EL1_stack_core3				// Address of EL1_stack_core3 stack pointer value
     ldr x4, = __EL0_stack_core3				// Address of EL0_stack_core3 stack pointer value
 set_stacks:
+#if EL1_BUILD
 	mov	sp, x2								/* EL2 stack set */
 	msr	sp_el1, x3							/* EL1 stack set */
 	msr	sp_el0, x4							/* EL0 stack set */
+#else
+	mov	sp, x2								/* EL2 stack set */
+	msr	sp_el1, x3							/* EL1 stack set */
+	msr	sp_el0, x4							/* EL0 stack set */
+#endif
 
 //"================================================================"
 //  Initilize MPID/MPIDR registers for all Cores
 //"================================================================"
+#ifndef EL1_BUILD
 	mrs	x0, midr_el1
 	mrs	x1, mpidr_el1
 	msr	vpidr_el2, x0
 	msr	vmpidr_el2, x1
+#endif
 
 //"================================================================"
 //  Initialize Generic Timers for Core0
 //"================================================================"
+#ifndef EL1_BUILD
 	mrs	x0, cnthctl_el2
 	orr	x0, x0, #0x3						/* Enable EL1 access to timers */
 	msr	cnthctl_el2, x0
 	msr	cntvoff_el2, xzr
-	
+#endif	
+
 //"================================================================"
 //  Disable coprocessor traps for all Cores
 //"================================================================"
 .if (__ARM_FP == 14)		//# If hard float compiling selected
+#ifndef EL1_BUILD
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0						// Disable coprocessor traps to EL2
 	msr	hstr_el2, xzr						// Disable coprocessor traps to EL2
+#endif
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0						// Enable FP/SIMD at EL1
 .endif						//# __ARM_FP == 14 hard float on for compiling
 
+#ifndef EL1_BUILD
 //"================================================================"
 //  Initialize HCR_EL2 so EL1 is 64 bits for all Cores
 //"================================================================"
 	mov	x0, #(1 << 31)						// 64bit EL1
 	msr	hcr_el2, x0
+#endif
 
 //"================================================================"
 //  Initialize SCTLR_EL1 for all Cores
@@ -151,6 +165,7 @@ set_stacks:
 	orr    x0, x0, #(0x1 << 12)           // The I bit on (instruction cache)
 	msr	sctlr_el1, x0
 
+#ifndef EL1_BUILD
 //"================================================================"
 //  Return to the EL1_SP1 mode from EL2 for all Cores
 //"================================================================"
@@ -160,6 +175,7 @@ set_stacks:
 	msr	elr_el2, x0							// Set elevated return register
 	eret									// Call elevated return
 exit_el1:
+#endif
 
 //"================================================================"
 //  Set vector table for EL1 for Cores (Yep all use same vectors)
@@ -194,6 +210,7 @@ cpu0_exit_multicore_park:
 	bhi	.bss_zero_loop
 .bss_cleared:
 
+#ifndef EL1_BUILD
 //"================================================================"
 //			Core0 will bring Core 1,2,3 to secondary spin 
 //"================================================================"
@@ -227,6 +244,7 @@ cpu0_exit_multicore_park:
 	ldr	w1, [x3]							// Read CoresReady count
 	cmp	w1, #4								// Wait for setting of third core ready
 	bne	.WaitCore3ACK						// Core3 not ready so read again
+#endif
 
 //"================================================================"
 // Finally that all done Core0 jumps to the C compiler entry point

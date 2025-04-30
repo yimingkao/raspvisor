@@ -1,4 +1,4 @@
-ARMGNU ?= aarch64-linux-gnu
+ARMGNU ?= /home/android_camera/iCatchtek/tool-chain10/bin/aarch64-icatchtek-elf
 
 COPS = -Wall -nostdlib -nostartfiles -ffreestanding -Iinclude -mgeneral-regs-only
 ASMOPS = -Iinclude
@@ -9,7 +9,7 @@ SRC_DIR = src
 all : echo.bin
 
 clean :
-	rm -rf $(BUILD_DIR) *.img
+	rm -rf $(BUILD_DIR) *.img echo.*
 
 $(BUILD_DIR)/%_c.o: $(SRC_DIR)/%.c
 	mkdir -p $(@D)
@@ -29,3 +29,4 @@ DEP_FILES = $(OBJ_FILES:%.o=%.d)
 echo.bin: $(SRC_DIR)/linker.ld $(OBJ_FILES)
 	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf  $(OBJ_FILES)
 	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary echo.bin
+	$(ARMGNU)-objdump $(BUILD_DIR)/kernel8.elf -d -x -s -t > echo.list

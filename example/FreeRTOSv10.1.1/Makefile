@@ -4,39 +4,17 @@
 # There is no need to install cygwin or any of that sort of rubbish
 
 # This little section enables us to make compatible windows and linux make files
-ifeq ($(OS), Windows_NT)
-	#WINDOWS USE THESE DEFINITIONS
-	RM = -del /q
-	SLASH = \\
-	MKDIR := mkdir
-else
-	#LINUX USE THESE DEFINITIONS
-	RM = -rm -rf
-	SLASH = /
-	MKDIR := /bin/mkdir -p
-endif 
+RM = -rm -rf
+SLASH = /
+MKDIR := /bin/mkdir -p
 
 # You will need to change the first line (ARMGNU) of these to match your compiler directories
-ifeq ($(MAKECMDGOALS),Pi3-64)
-ifeq ($(OS), Windows_NT)
-ARMGNU := D:/gcc_linaro_7_1/bin/aarch64-elf
-else
 #ARMGNU := aarch64-elf
 ARMGNU := /home/android_camera/iCatchtek/tool-chain10/bin/aarch64-icatchtek-elf
-endif
 SMARTSTART := SmartStart64.S
 SPECIAL_FLAGS := -mcpu=cortexa53 -mstrict-align -fno-tree-loop-vectorize -fno-tree-slp-vectorize
+
 LINKER_FILE := rpi64.ld
-else
-ifeq ($(OS), Windows_NT)
-ARMGNU := D:/gcc_pi_7_2/bin/arm-none-eabi
-else
-ARMGNU := arm-none-eabi
-endif
-SMARTSTART := SmartStart32.S
-SPECIAL_FLAGS := -mno-unaligned-access
-LINKER_FILE := rpi32.ld
-endif
 
 INCLUDEPATH ?= FreeRTOS
 
@@ -88,17 +66,11 @@ CFLAGS  += -fwrapv
 # ADD any special AARCH compile mode flags
 CFLAGS  += $(SPECIAL_FLAGS)
 
+Pi3-64-el1: CFLAGS += -DEL1_BUILD=1 -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
+Pi3-64-el1: IMGFILE := FreeRTOS.bin
+
 Pi3-64: CFLAGS += -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
 Pi3-64: IMGFILE := kernel8.img
-
-Pi3: CFLAGS += -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
-Pi3: IMGFILE := kernel8-32.img
-
-Pi2: CFLAGS += -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a7 
-Pi2: IMGFILE := kernel7.img
-
-Pi1: CFLAGS += -ffreestanding -nostartfiles -std=c11 -mcpu=arm1176jzf-s
-Pi1: IMGFILE := kernel.img
 
 # Set linker flags common to all platforms.  platformVars can add additional
 # flags if needed.  Do not use the "-Wl," prefix either here on in platformVars.
@@ -151,7 +123,7 @@ clean :
 	$(RM) *.elf
 	$(RM) *.list
 	$(RM) *.map
-	$(RM) *.img
+	$(RM) *.img FreeRTOS.bin
 .PHONY: clean
 
 # How we compile assembler files
@@ -165,17 +137,12 @@ $(SOFILES): $(SFILES)
 $(SFILES): ;
 $(CFILES): ;
 
+Pi3-64-el1: create_folder freertos.elf
+.PHONY: Pi3-64-el1
+
 Pi3-64: create_folder freertos.elf
 .PHONY: Pi3-64
 
-Pi3: create_folder freertos.elf
-.PHONY: Pi3
-
-Pi2: create_folder freertos.elf
-.PHONY: Pi2
-
-Pi1: create_folder freertos.elf
-.PHONY: Pi1
 
 create_folder:
 	$(MKDIR) build

@@ -84,18 +84,18 @@ void hypervisor_main() {
     return;
   }
 
-#if 0
   struct raw_binary_loader_args bl_args3 = {
-    .load_addr = 0x0,
-    .entry_point = 0x0,
+    .load_addr = 0x80000,
+    .entry_point = 0x80000,
     .sp = 0x100000,
-    .filename = "MINI-OS.BIN",
+    .filename = "FreeRTOS.bin",
   };
   if (create_task(raw_binary_loader, &bl_args3) < 0) {
     printf("error while starting task #2");
     return;
   }
 
+#if 0
   struct raw_binary_loader_args bl_args4 = {
     .load_addr = 0x0,
     .entry_point = 0x0,

@@ -31,6 +31,7 @@ DEP_FILES = $(OBJ_FILES:%.o=%.d)
 kernel8.img: $(SRC_DIR)/linker.ld $(OBJ_FILES)
 	$(ARMGNU)-ld -T $(SRC_DIR)/linker.ld -o $(BUILD_DIR)/kernel8.elf  $(OBJ_FILES)
 	$(ARMGNU)-objcopy $(BUILD_DIR)/kernel8.elf -O binary kernel8.img
+	$(ARMGNU)-objdump -d $(BUILD_DIR)/kernel8.elf > kernel8.list
 
 .PHONY: install
 install: kernel8.img
