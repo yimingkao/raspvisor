@@ -1,3 +1,12 @@
+# Build Method
+To generate the kernel8.img used in Raspberry 3B+ directly
+> $ make 
+
+To generate the FreeRTOS.bin used in raspvisor
+> $ make EL1=YES
+
+---
+
 # FreeRTOS 10.1.1 (Pi 1,2,3 32Bit and Pi3 64 bit now working)
 ![](https://github.com/LdB-ECM/Docs_and_Images/blob/master/Images/FreeRTOS.jpg?raw=true)
 >
