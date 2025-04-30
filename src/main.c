@@ -85,8 +85,8 @@ void hypervisor_main() {
   }
 
   struct raw_binary_loader_args bl_args3 = {
-    .load_addr = 0x80000,
-    .entry_point = 0x80000,
+    .load_addr = 0x0000,
+    .entry_point = 0x0000,
     .sp = 0x100000,
     .filename = "FreeRTOS.bin",
   };

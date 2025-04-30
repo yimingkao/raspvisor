@@ -14,7 +14,11 @@ ARMGNU := /home/android_camera/iCatchtek/tool-chain10/bin/aarch64-icatchtek-elf
 SMARTSTART := SmartStart64.S
 SPECIAL_FLAGS := -mcpu=cortexa53 -mstrict-align -fno-tree-loop-vectorize -fno-tree-slp-vectorize
 
+ifeq ($(EL1), YES)
+LINKER_FILE := rpi64-el1.ld
+else
 LINKER_FILE := rpi64.ld
+endif
 
 INCLUDEPATH ?= FreeRTOS
 
@@ -66,11 +70,13 @@ CFLAGS  += -fwrapv
 # ADD any special AARCH compile mode flags
 CFLAGS  += $(SPECIAL_FLAGS)
 
-Pi3-64-el1: CFLAGS += -DEL1_BUILD=1 -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
-Pi3-64-el1: IMGFILE := FreeRTOS.bin
-
-Pi3-64: CFLAGS += -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
-Pi3-64: IMGFILE := kernel8.img
+ifeq ($(EL1), YES)
+  CFLAGS += -DEL1_BUILD=1 -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
+  IMGFILE := FreeRTOS.bin
+else
+  CFLAGS += -ffreestanding -nostartfiles -std=c11 -mcpu=cortex-a53
+  IMGFILE := kernel8.img
+endif
 
 # Set linker flags common to all platforms.  platformVars can add additional
 # flags if needed.  Do not use the "-Wl," prefix either here on in platformVars.
@@ -114,7 +120,7 @@ SFILES := $(strip $(filter-out %.c, $(COMP_SRC)))
 SOFILES := $(patsubst %.S,$(BUILD_DIR)/%.o, $(notdir $(SFILES)))
 COFILES := $(patsubst %.c,$(BUILD_DIR)/%.o, $(notdir $(CFILES)))
 
-gcc : freertos.elf
+all: create_folder freertos.elf
 
 # Control silent mode  .... we want silent in clean
 .SILENT: clean
@@ -136,12 +142,6 @@ $(SOFILES): $(SFILES)
 
 $(SFILES): ;
 $(CFILES): ;
-
-Pi3-64-el1: create_folder freertos.elf
-.PHONY: Pi3-64-el1
-
-Pi3-64: create_folder freertos.elf
-.PHONY: Pi3-64
 
 
 create_folder:
